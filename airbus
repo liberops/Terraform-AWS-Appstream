@@ -1,0 +1,102 @@
+
+ 
+Conditions:
+  FleetImageWithArnEnabled: !Not 
+    - !Equals 
+      - !Ref FleetImageSourceAccountID
+      - ''
+  FleetRoleEnabled: !Not 
+    - !Equals 
+      - !Ref FleetRoleName
+      - ''
+  FleetImageDomainJoinEnabled: !Not 
+    - !Equals 
+      - !Ref FleetDomainJoinDirectoryName
+      - ''
+  StackStorageConnectorHomeFoldersEnabled: !Not 
+    - !Equals 
+      - !Ref StackStorageConnectorHomeFolders
+      - ''
+
+
+
+Resources:
+  
+    
+
+
+  Fleet:
+    Type: 'AWS::AppStream::Fleet'
+    Properties:
+      Name: !Ref FleetName
+      DisplayName: !Ref FleetName
+      ImageName: !If 
+        - FleetImageWithArnEnabled
+        - !Ref 'AWS::NoValue'
+        - !Ref FleetImageName
+      IamRoleArn: !If 
+        - FleetRoleEnabled
+        - !Join 
+          - ''
+          - - 'arn:aws:iam::'
+            - !Ref 'AWS::AccountId'
+            - ':role/'
+            - !Ref FleetRoleName
+        - !Ref 'AWS::NoValue'
+      ImageArn: !If 
+        - FleetImageWithArnEnabled
+        - !Join 
+          - ''
+          - - 'arn:aws:appstream:'
+            - !Ref 'AWS::Region'
+            - ':'
+            - !Ref FleetImageSourceAccountID
+            - ':image/'
+            - !Ref FleetImageName
+        - !Ref 'AWS::NoValue'
+      
+      ComputeCapacity:
+        DesiredInstances: !Ref FleetDesiredCapacity
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref FleetSecurityGroupID
+        SubnetIds:
+          - !Ref FleetSubnetID1
+          - !Ref FleetSubnetID2
+      DomainJoinInfo: !If 
+            - FleetImageDomainJoinEnabled
+            - 
+              DirectoryName: !Ref FleetDomainJoinDirectoryName
+              OrganizationalUnitDistinguishedName: !Ref FleetDomainJoinOU
+            - !Ref 'AWS::NoValue'
+      DisconnectTimeoutInSeconds: !Ref FleetDisconnectTimeoutInSeconds
+      
+    CreationPolicy:
+      StartFleet: !Ref FleetAutoStart
+  
+  
+  Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Join 
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':saml-provider/'
+                  - !Ref IDPProviderName
+            Action: 'sts:AssumeRoleWithSAML'
+            Condition:
+              StringEquals:
+                'SAML:aud': 'https://signin.aws.amazon.com/saml'
+      ManagedPolicyArns:
+        - !Ref Policy
+      RoleName: !Ref RoleName
+      PermissionsBoundary: !Ref Policy
+
+
+  
