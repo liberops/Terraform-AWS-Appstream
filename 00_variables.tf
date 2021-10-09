@@ -302,14 +302,6 @@ variable "FleetAutoStart" {
   default     = false
 }
 
-#variable "FleetSubnetID1" {
-  #description = "Subnet ID that will host the instances, Subnet one"
-  #Type: 'AWS::EC2::Subnet::Id'
-#}
-#variable "FleetSubnetID2" {
-  #description = "Subnet ID that will host the instances, Subnet two"
-  #Type: 'AWS::EC2::Subnet::Id'
-#}
 variable "FleetDisconnectTimeoutInSeconds" {
   description = "The amount of time that a streaming session remains active after users disconnect, Specify a value between 60 and 360000"
   type        = number
@@ -362,11 +354,6 @@ variable "FleetScaleDownPolicyAdjustment" {
 }
 
 
-#variable "FleetImageDomainJoinEnabled" {
-  #description = "Enable the fleet DomainJoin configuration"
-  #type = bool
-#}
-
 variable "FleetDomainJoinDirectoryName" {
   description = "The fully qualified name of the directory (for example, corp.example.com)"
   type        = string
@@ -378,11 +365,6 @@ variable "FleetDomainJoinOU" {
   type        = string
   default     = " "
 }
-
-#N'EST PAS A CONFIGURER
-#variable "FleetVPCID" {
-  #description = "ID of the VPC that will host the instances, must be the same VPC ID than the one hosting FleetSubnetID1 and FleetSubnetID2"
-#}
 
 variable "FleetSecurityGroupID" {
   description = " Security group ID, this security group is associated with your fleet instances"
